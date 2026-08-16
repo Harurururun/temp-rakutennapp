@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rakuten Trip Navi</title>
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --ink-soft:#4B5A78;
+    --paper:#FFF8ED;
+    --paper-dim:#F3ECD9;
+    --rakuten-red:#BF0000;
+    --rakuten-red-deep:#8F0000;
+    --gold:#E8A33D;
+    --line:#D8CDB0;
+    --good:#2F7A4F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:linear-gradient(180deg,var(--ink) 0%, #263a63 100%);
+    font-family:"Hiragino Sans","Yu Gothic",-apple-system,BlinkMacSystemFont,sans-serif;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  .phone{
+    width:100%;
+    max-width:380px;
+    background:var(--paper);
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,0.45);
+    border:1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ---- header ---- */
+  .app-header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:22px 20px 20px;
+    position:relative;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .brand-mark{
+    background:var(--rakuten-red);
+    color:#fff;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:.06em;
+    padding:3px 7px;
+    border-radius:4px;
+  }
+  .brand-name{
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.02em;
+  }
+  .trip-title{
+    margin-top:14px;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:.01em;
+  }
+  .trip-sub{
+    margin-top:4px;
+    font-size:12.5px;
+    color:#B9C3DA;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---- status readout ---- */
+  .status{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    margin:0 20px;
+    margin-top:-14px;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 6px 18px rgba(27,42,74,0.18);
+  }
+  .status-cell{
+    background:var(--paper);
+    padding:14px 14px 12px;
+  }
+  .status-label{
+    font-size:10.5px;
+    color:var(--ink-soft);
+    letter-spacing:.04em;
+  }
+  .status-value{
+    margin-top:4px;
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .status-value.small{ font-size:14px; }
+  .status-value .unit{
+    font-size:11px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-left:2px;
+  }
+
+  /* ---- ticket stub divider ---- */
+  .stub{
+    position:relative;
+    margin:22px 20px 0;
+    height:1px;
+  }
+  .stub::before{
+    content:"";
+    position:absolute;
+    left:0; right:0; top:0;
+    border-top:2px dashed var(--line);
+  }
+  .stub .notch{
+    position:absolute;
+    top:-9px;
+    width:18px; height:18px;
+    background:var(--ink);
+    border-radius:50%;
+  }
+  .stub .notch.left{ left:-29px; }
+  .stub .notch.right{ right:-29px; }
+
+  /* ---- action card ---- */
+  .action-card{
+    margin:20px 20px 0;
+    padding:20px 18px;
+    background:linear-gradient(160deg,#fff 0%, var(--paper-dim) 100%);
+    border:1px solid var(--line);
+    border-radius:16px;
+  }
+  .action-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.05em;
+    color:var(--rakuten-red-deep);
+  }
+  .pulse{
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--rakuten-red);
+    box-shadow:0 0 0 rgba(191,0,0,0.5);
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(191,0,0,0.45); }
+    70%{ box-shadow:0 0 0 8px rgba(191,0,0,0); }
+    100%{ box-shadow:0 0 0 0 rgba(191,0,0,0); }
+  }
+  .action-headline{
+    margin-top:10px;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    line-height:1.4;
+  }
+  .action-detail{
+    margin-top:6px;
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .cta{
+    margin-top:16px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:11px;
+    background:var(--rakuten-red);
+    color:#fff;
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:.01em;
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease;
+  }
+  .cta:hover{ background:var(--rakuten-red-deep); }
+  .cta:active{ transform:scale(0.98); }
+  .cta.secondary{
+    background:transparent;
+    color:var(--rakuten-red-deep);
+    border:1.5px solid var(--rakuten-red-deep);
+    margin-top:8px;
+  }
+  .cta.secondary:hover{ background:rgba(191,0,0,0.06); }
+
+  /* ---- demo controls ---- */
+  .demo-panel{
+    margin:22px 20px 22px;
+    padding:14px 16px 16px;
+    background:var(--ink);
+    border-radius:14px;
+    color:var(--paper);
+  }
+  .demo-title{
+    font-size:10.5px;
+    letter-spacing:.08em;
+    color:#8FA0C4;
+    font-weight:700;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .demo-row{
+    margin-top:12px;
+  }
+  .demo-row label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:#CBD5EA;
+    margin-bottom:6px;
+    font-variant-numeric:tabular-nums;
+  }
+  input[type="range"]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:2px;
+    background:#3A4A70;
+    outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold);
+    cursor:pointer;
+    border:2px solid var(--ink);
+  }
+  .geo-btn-row{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  .mini-btn{
+    flex:1;
+    padding:9px 8px;
+    font-size:12px;
+    font-weight:600;
+    border-radius:8px;
+    border:1px solid #3A4A70;
+    background:#243259;
+    color:var(--paper);
+    cursor:pointer;
+  }
+  .mini-btn:hover{ background:#2C3B68; }
+  .geo-status{
+    margin-top:10px;
+    font-size:11px;
+    color:#8FA0C4;
+    line-height:1.5;
+  }
+  .geo-status.ok{ color:#7FD4A0; }
+  .geo-status.err{ color:#E89B9B; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="app-header">
+    <div class="brand">
+      <span class="brand-mark">R</span>
+      <span class="brand-name">Rakuten Trip Navi</span>
+    </div>
+    <div class="trip-title">東京旅行　1日目</div>
+    <div class="trip-sub" id="clockLine">現在時刻 --:-- ・ チェックイン 15:00〜</div>
+  </div>
+
+  <div class="status">
+    <div class="status-cell">
+      <div class="status-label">現在地</div>
+      <div class="status-value small" id="locLabel">未取得</div>
+    </div>
+    <div class="status-cell">
+      <div class="status-label">ホテルまで</div>
+      <div class="status-value" id="distValue">—<span class="unit">km</span></div>
+    </div>
+  </div>
+
+  <div class="stub">
+    <div class="notch left"></div>
+    <div class="notch right"></div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-eyebrow"><span class="pulse"></span>NEXT ACTION</div>
+    <div class="action-headline" id="actionHeadline">現在地を取得してください</div>
+    <div class="action-detail" id="actionDetail">位置情報を許可すると、ホテルまでの距離とチェックインまでの残り時間から次の行動を提案します。</div>
+    <button class="cta" id="mapBtn" style="display:none;">ホテルまでの経路を見る</button>
+  </div>
+
+  <div class="demo-panel">
+    <div class="demo-title">
+      <span>デモ操作パネル</span>
+      <span id="demoBadge">SIMULATION</span>
+    </div>
+
+    <div class="geo-btn-row">
+      <button class="mini-btn" id="geoBtn">📍 現在地を取得</button>
+      <button class="mini-btn" id="fallbackBtn">🗺 デモ位置を使う</button>
+    </div>
+    <div class="geo-status" id="geoStatusText">端末のGPSを使うか、東京駅発のデモ位置で試せます。</div>
+
+    <div class="demo-row">
+      <label><span>デモ時刻を動かす</span><span id="timeLabel">14:00</span></label>
+      <input type="range" id="timeSlider" min="720" max="960" step="5" value="840">
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- 予約情報（仮データ：楽天トラベルAPIの代わり）----
+  const reservation = {
+    hotelName: "赤坂パークホテル",
+    checkinHour: 15,
+    checkinMinute: 0,
+    hotel: { lat: 35.6733, lng: 139.7360 } // 赤坂付近（仮）
+  };
+
+  // デモ用フォールバック位置（東京駅）
+  const fallbackLocation = { lat: 35.6812, lng: 139.7671, label: "東京駅" };
+
+  let currentLocation = null;
+  let simulatedMinutes = 840; // 14:00 をデフォルト
+
+  const locLabelEl = document.getElementById('locLabel');
+  const distValueEl = document.getElementById('distValue');
+  const clockLineEl = document.getElementById('clockLine');
+  const headlineEl = document.getElementById('actionHeadline');
+  const detailEl = document.getElementById('actionDetail');
+  const mapBtn = document.getElementById('mapBtn');
+  const geoStatusText = document.getElementById('geoStatusText');
+  const timeSlider = document.getElementById('timeSlider');
+  const timeLabel = document.getElementById('timeLabel');
+
+  function toHM(totalMinutes){
+    const h = Math.floor(totalMinutes/60).toString().padStart(2,'0');
+    const m = (totalMinutes%60).toString().padStart(2,'0');
+    return `${h}:${m}`;
+  }
+
+  // Haversine 距離計算（km）
+  function distanceKm(a, b){
+    const R = 6371;
+    const dLat = (b.lat - a.lat) * Math.PI/180;
+    const dLng = (b.lng - a.lng) * Math.PI/180;
+    const lat1 = a.lat * Math.PI/180;
+    const lat2 = b.lat * Math.PI/180;
+    const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h));
+  }
+
+  // 移動時間の概算（徒歩+電車を想定した平均速度 25km/h）
+  function estimateTravelMinutes(km){
+    return Math.max(5, Math.round(km / 25 * 60));
+  }
+
+  function render(){
+    timeLabel.textContent = toHM(simulatedMinutes);
+    clockLineEl.textContent = `現在時刻 ${toHM(simulatedMinutes)} ・ チェックイン ${reservation.checkinHour.toString().padStart(2,'0')}:${reservation.checkinMinute.toString().padStart(2,'0')}〜`;
+
+    if(!currentLocation){
+      headlineEl.textContent = "現在地を取得してください";
+      detailEl.textContent = "位置情報を許可すると、ホテルまでの距離とチェックインまでの残り時間から次の行動を提案します。";
+      mapBtn.style.display = "none";
+      return;
+    }
+
+    const km = distanceKm(currentLocation, reservation.hotel);
+    const travelMin = estimateTravelMinutes(km);
+    const checkinTotal = reservation.checkinHour*60 + reservation.checkinMinute;
+    const minutesUntilCheckin = checkinTotal - simulatedMinutes;
+
+    distValueEl.innerHTML = `${km.toFixed(1)}<span class="unit">km</span>`;
+
+    // ---- 判定ルール ----
+    let action;
+    if (km < 0.3){
+      action = "checkin";
+    } else if (minutesUntilCheckin <= travelMin + 20){
+      action = "depart";
+    } else {
+      action = "wait";
+    }
+
+    if (action === "checkin"){
+      headlineEl.textContent = `${reservation.hotelName}に到着しました`;
+      detailEl.textContent = "チェックイン画面を表示しますか？予約番号は入力済みです。";
+      mapBtn.textContent = "チェックイン画面を開く";
+      mapBtn.style.display = "block";
+    } else if (action === "depart"){
+      const departBy = toHM(checkinTotal - travelMin);
+      headlineEl.textContent = `${departBy}にホテルへ出発しましょう`;
+      detailEl.textContent = `${reservation.hotelName}まで約${travelMin}分。チェックイン開始（${reservation.checkinHour}:00）にちょうど間に合います。`;
+      mapBtn.textContent = "ホテルまでの経路を見る";
+      mapBtn.style.display = "block";
+    } else {
+      const departBy = toHM(checkinTotal - travelMin);
+      headlineEl.textContent = "出発時刻まで、もう少し待機";
+      detailEl.textContent = `${departBy}頃の出発で間に合う見込みです。それまで周辺を散策できます。`;
+      mapBtn.style.display = "none";
+    }
+
+    mapBtn.onclick = () => {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${currentLocation.lat},${currentLocation.lng}&destination=${reservation.hotel.lat},${reservation.hotel.lng}`;
+      window.open(url, '_blank');
+    };
+  }
+
+  function setLocation(loc, label){
+    currentLocation = loc;
+    locLabelEl.textContent = label;
+    render();
+  }
+
+  document.getElementById('geoBtn').addEventListener('click', () => {
+    if (!navigator.geolocation){
+      geoStatusText.textContent = "このブラウザは位置情報に対応していません。デモ位置をお使いください。";
+      geoStatusText.className = "geo-status err";
+      return;
+    }
+    geoStatusText.textContent = "位置情報を取得中…";
+    geoStatusText.className = "geo-status";
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setLocation(loc, "現在地（GPS取得）");
+        geoStatusText.textContent = `取得成功（誤差 約${Math.round(pos.coords.accuracy)}m）`;
+        geoStatusText.className = "geo-status ok";
+      },
+      (err) => {
+        geoStatusText.textContent = `取得できませんでした（${err.message}）。デモ位置をお使いください。`;
+        geoStatusText.className = "geo-status err";
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  document.getElementById('fallbackBtn').addEventListener('click', () => {
+    setLocation(fallbackLocation, fallbackLocation.label);
+    geoStatusText.textContent = "デモ位置（東京駅）を使用中です。";
+    geoStatusText.className = "geo-status ok";
+  });
+
+  timeSlider.addEventListener('input', (e) => {
+    simulatedMinutes = parseInt(e.target.value, 10);
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
